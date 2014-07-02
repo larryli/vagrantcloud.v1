@@ -148,7 +148,7 @@ func (p *Provider) Delete() error {
 // you can confirm the upload by comparing the token provided in the UPLOAD response with the token returned from the providers GET route.
 // When these tokens match, the upload has been successful.
 func (p *Provider) Upload(data io.Reader) error {
-	body, err := p.api.PutData(p.Uri()+"/upload", data)
+	body, err := p.api.Upload(p.Uri()+"/upload", data)
 	if err != nil {
 		return err
 	}

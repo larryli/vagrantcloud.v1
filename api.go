@@ -118,7 +118,7 @@ func (a *Api) Put(uri string, params url.Values) ([]byte, error) {
 	return a.response(resp)
 }
 
-func (a *Api) PutData(uri string, data io.Reader) ([]byte, error) {
+func (a *Api) Upload(uri string, data io.Reader) ([]byte, error) {
 	u, err := url.ParseRequestURI(a.buildUrl(uri))
 	if err != nil {
 		return nil, err
