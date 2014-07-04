@@ -1,0 +1,23 @@
+{
+	"warty": "4.10 (Warty Warthog)",
+	"hoary": "5.04 (Hoary Hedgehog)",
+	"breezy": "5.10 (Breezy Badger)",
+	"dapper": "6.06 LTS (Dapper Drake)",
+	"edgy": " 6.10 (Edgy Eft)",
+	"feisty": "7.04 (Feisty Fawn)",
+	"gutsy": "7.10 (Gutsy Gibbon)",
+	"hardy": "8.04 LTS (Hardy Heron)",
+	"intrepid": "8.10 (Intrepid Ibex)",
+	"jaunty": "9.04 (Jaunty Jackalope)",
+	"karmic": "9.10 (Karmic Koala)",
+	"lucid": "10.04 LTS (Lucid Lynx)",
+	"maverick": "10.10 (Maverick Meerkat)",
+	"natty": "11.04 (Natty Narwhal)",
+	"oneiric": "11.10 (Oneiric Ocelot)",
+	"precise": "12.04 LTS (Precise Pangolin)",
+	"quantal": "12.10 (Quantal Quetzal)",
+	"raring": "13.04 (Raring Ringtail)",
+	"saucy": "13.10 (Saucy Salamander)",
+	"trusty": "14.04 LTS (Trusty Tahr)",
+	"utopic": "14.10 (Utopic Unicorn)"
+}

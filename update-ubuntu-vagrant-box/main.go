@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/larryli/vagrantcloud.v1"
+	"io/ioutil"
 	"log"
 	"strings"
 )
@@ -19,6 +21,8 @@ type Box vagrantcloud.Box
 
 type Version vagrantcloud.Version
 
+type CodeNames map[string]string
+
 const (
 	url      = "https://cloud-images.ubuntu.com/vagrant/"
 	notFound = "404 Not Found"
@@ -27,9 +31,11 @@ const (
 
 var (
 	api      *vagrantcloud.Api
+	names    = CodeNames{}
 	username = flag.String("username", "larryli", "username")
 	token    = flag.String("token", "", "access_token")
 	test     = flag.Bool("test", false, "test, no effect")
+	codename = flag.String("codename", "", "ubuntu code name file(json)")
 	arches   = []Arch{
 		{
 			name: "64",
@@ -38,7 +44,7 @@ var (
 		},
 		{
 			name: "64-juju",
-			info: "amd64 with juju",
+			info: "amd64 with Juju",
 			box:  "-server-cloudimg-amd64-juju-vagrant-disk1.box",
 		},
 		{
@@ -48,13 +54,13 @@ var (
 		},
 		{
 			name: "32-juju",
-			info: "i386 with juju",
+			info: "i386 with Juju",
 			box:  "-server-cloudimg-i386-juju-vagrant-disk1.box",
 		},
 	}
 )
 
-func Fatal(err error, a ...interface{}) {
+func fatal(err error, a ...interface{}) {
 	if err != nil {
 		a = append(a, err)
 		log.Fatalln(a...)
@@ -65,9 +71,17 @@ func isChildren(s string) bool {
 	return !strings.HasPrefix(s, "/") && !strings.HasPrefix(s, "?")
 }
 
+func initCodeNames() {
+	if *codename != "" {
+		text, err := ioutil.ReadFile(*codename)
+		fatal(err, "read "+*codename)
+		fatal(json.Unmarshal(text, &names), "unmarshal "+*codename)
+	}
+}
+
 func fetchReleases() (releases []Release) {
 	doc, err := goquery.NewDocument(url)
-	Fatal(err, "fetch "+url)
+	fatal(err, "fetch "+url)
 	doc.Find("a").Each(func(i int, s *goquery.Selection) {
 		if link, ok := s.Attr("href"); ok {
 			if isChildren(link) {
@@ -78,6 +92,13 @@ func fetchReleases() (releases []Release) {
 	return
 }
 
+func (c CodeNames) get(name string) string {
+	if str, ok := c[name]; ok {
+		return str
+	}
+	return name
+}
+
 func (r Release) name() string {
 	return string(r)
 }
@@ -86,9 +107,21 @@ func (r Release) url() string {
 	return url + r.name() + "/"
 }
 
+func (r Release) title(info, version string) string {
+	ret := "Official Ubuntu Server " + strings.Title(names.get(r.name()))
+	if info != "" {
+		ret += " " + info
+	}
+	ret += " builds"
+	if version != "" {
+		ret += " (latest " + version + ")"
+	}
+	return ret
+}
+
 func (r Release) fetch() (versions []string) {
 	doc, err := goquery.NewDocument(r.url())
-	Fatal(err, "fetch "+r.url())
+	fatal(err, "fetch "+r.url())
 	doc.Find("a").Each(func(i int, s *goquery.Selection) {
 		if link, ok := s.Attr("href"); ok {
 			if isChildren(link) && link != "current/" {
@@ -106,15 +139,15 @@ func (r Release) scan() {
 		todo := fmt.Sprintf("fetch \"%s\"", box.Uri())
 		err := box.Get()
 		if err != nil && strings.EqualFold(err.Error(), notFound) {
-			box.ShortDescription = "Ubuntu " + strings.Title(r.name()) + " " + t.info
+			box.ShortDescription = r.title(t.info, "")
 			box.DescriptionMarkdown = r.url() + see
 			todo = fmt.Sprintf("add \"%s\"", box.Uri())
 			if !(*test) {
-				Fatal(box.New(), todo)
+				fatal(box.New(), todo)
 			}
 			log.Println(todo)
 		} else {
-			Fatal(err, todo)
+			fatal(err, todo)
 		}
 		for _, version := range box.Versions {
 			v := Version(version)
@@ -127,6 +160,14 @@ func (r Release) scan() {
 			if !b.find(version) {
 				image := r.url() + version + "/" + r.name() + t.box
 				b.add(version, image)
+				log.Println(box.ShortDescription)
+				log.Println(box.DescriptionMarkdown)
+				box.ShortDescription = r.title(t.info, version)
+				todo = fmt.Sprintf("update \"%s\": \"%s\"", box.Uri(), box.ShortDescription)
+				if !(*test) {
+					fatal(box.Set(), todo)
+				}
+				log.Println(todo)
 			}
 		}
 	}
@@ -146,7 +187,7 @@ func (v *Version) delete() {
 	version := (*vagrantcloud.Version)(v)
 	todo := fmt.Sprintf("delete \"%s\" Version: \"%s\"", version.Uri(), version.Version)
 	if !(*test) {
-		Fatal(version.Delete(), todo)
+		fatal(version.Delete(), todo)
 	}
 	log.Println(todo)
 }
@@ -168,27 +209,32 @@ func (b *Box) add(version, image string) {
 	v.DescriptionMarkdown = image + see
 	todo := fmt.Sprintf("add \"%s\" Version: \"%s\"", v.Uri(), v.Version)
 	if !(*test) {
-		Fatal(v.New(), todo)
+		fatal(v.New(), todo)
 	}
 	p := v.Provider(vagrantcloud.ProviderVirtualbox)
 	p.OriginalUrl = image
 	todo = fmt.Sprintf("add \"%s\" Version: \"%s\"", p.Uri())
 	if !(*test) {
-		Fatal(p.New(), todo)
+		fatal(p.New(), todo)
 	}
 	todo = fmt.Sprintf("public \"%s\" Version: \"%s\" Url: \"%s\"", v.Uri(), v.Version, p.OriginalUrl)
 	if !(*test) {
-		Fatal(v.Release(), todo)
+		fatal(v.Release(), todo)
 	}
 	log.Println(todo)
 }
 
 func main() {
 	flag.Parse()
-	api = vagrantcloud.New(*token)
-	log.Println("start")
-	for _, release := range fetchReleases() {
-		release.scan()
+	if !(*test) && *token == "" {
+		flag.Usage()
+	} else {
+		initCodeNames()
+		api = vagrantcloud.New(*token)
+		log.Println("start")
+		for _, release := range fetchReleases() {
+			release.scan()
+		}
+		log.Println("end")
 	}
-	log.Println("end")
 }
