@@ -37,7 +37,7 @@ var (
 			box:  "-server-cloudimg-amd64-vagrant-disk1.box",
 		},
 		{
-			name: "64juju",
+			name: "64-juju",
 			info: "amd64 with juju",
 			box:  "-server-cloudimg-amd64-juju-vagrant-disk1.box",
 		},
@@ -47,7 +47,7 @@ var (
 			box:  "-server-cloudimg-i386-vagrant-disk1.box",
 		},
 		{
-			name: "32juju",
+			name: "32-juju",
 			info: "i386 with juju",
 			box:  "-server-cloudimg-i386-juju-vagrant-disk1.box",
 		},
