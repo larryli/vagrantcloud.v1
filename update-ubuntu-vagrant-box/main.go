@@ -160,8 +160,6 @@ func (r Release) scan() {
 			if !b.find(version) {
 				image := r.url() + version + "/" + r.name() + t.box
 				b.add(version, image)
-				log.Println(box.ShortDescription)
-				log.Println(box.DescriptionMarkdown)
 				box.ShortDescription = r.title(t.info, version)
 				todo = fmt.Sprintf("update \"%s\": \"%s\"", box.Uri(), box.ShortDescription)
 				if !(*test) {
