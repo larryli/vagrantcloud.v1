@@ -42,21 +42,21 @@ var (
 			info: "amd64",
 			box:  "-server-cloudimg-amd64-vagrant-disk1.box",
 		},
-		{
-			name: "64-juju",
-			info: "amd64 with Juju",
-			box:  "-server-cloudimg-amd64-juju-vagrant-disk1.box",
-		},
+		// {
+		// 	name: "64-juju",
+		// 	info: "amd64 with Juju",
+		// 	box:  "-server-cloudimg-amd64-juju-vagrant-disk1.box",
+		// },
 		{
 			name: "32",
 			info: "i386",
 			box:  "-server-cloudimg-i386-vagrant-disk1.box",
 		},
-		{
-			name: "32-juju",
-			info: "i386 with Juju",
-			box:  "-server-cloudimg-i386-juju-vagrant-disk1.box",
-		},
+		// {
+		// 	name: "32-juju",
+		// 	info: "i386 with Juju",
+		// 	box:  "-server-cloudimg-i386-juju-vagrant-disk1.box",
+		// },
 	}
 )
 
@@ -68,7 +68,7 @@ func fatal(err error, a ...interface{}) {
 }
 
 func isChildren(s string) bool {
-	return !strings.HasPrefix(s, "/") && !strings.HasPrefix(s, "?")
+	return !strings.HasPrefix(s, "/") && !strings.HasPrefix(s, "?") && strings.HasSuffix(s, "/")
 }
 
 func initCodeNames() {
@@ -211,7 +211,7 @@ func (b *Box) add(version, image string) {
 	}
 	p := v.Provider(vagrantcloud.ProviderVirtualbox)
 	p.OriginalUrl = image
-	todo = fmt.Sprintf("add \"%s\" Version: \"%s\"", p.Uri())
+	todo = fmt.Sprintf("add \"%s\" Version: \"%s\"", p.Uri(), v.Version)
 	if !(*test) {
 		fatal(p.New(), todo)
 	}
