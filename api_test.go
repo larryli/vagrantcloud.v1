@@ -23,7 +23,7 @@ func TestApi(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	v := b.Version(0)
+	v := b.Version("0.0.1")
 	v.Version = "0.0.1"
 	if err := v.New(); err != nil {
 		t.Fatal(err)

@@ -3,7 +3,6 @@ package vagrantcloud
 import (
 	"encoding/json"
 	"net/url"
-	"strconv"
 	"time"
 )
 
@@ -27,14 +26,14 @@ type Version struct {
 	DescriptionMarkdown string        `json:"description_markdown"`
 	CreatedAt           time.Time     `json:"created_at"`
 	UpdatedAt           time.Time     `json:"updated_at"`
-	Number              int           `json:"number"`
+	Number              string        `json:"number"`
 	Downloads           int           `json:"downloads"`
 	ReleaseUrl          string        `json:"release_url"`
 	RevokeUrl           string        `json:"revoke_url"`
 	Providers           []Provider    `json:"providers"`
 }
 
-func (b *Box) Version(number int) *Version {
+func (b *Box) Version(number string) *Version {
 	v := &Version{
 		Number: number,
 	}
@@ -60,7 +59,7 @@ func (v *Version) parseBody(body []byte) error {
 }
 
 func (v *Version) Uri() string {
-	return v.box.Uri() + "/version/" + strconv.Itoa(v.Number)
+	return v.box.Uri() + "/version/" + v.Number
 }
 
 // RETRIEVE A VERSION

@@ -202,7 +202,7 @@ func (b *Box) find(version string) (found bool) {
 
 func (b *Box) add(version, image string) {
 	box := (*vagrantcloud.Box)(b)
-	v := box.Version(0)
+	v := box.Version("0.0.1")
 	v.Version = version
 	v.DescriptionMarkdown = image + see
 	todo := fmt.Sprintf("add \"%s\" Version: \"%s\"", v.Uri(), v.Version)

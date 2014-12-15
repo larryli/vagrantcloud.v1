@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/url"
-	"strconv"
 	"time"
 )
 
@@ -161,7 +160,7 @@ func (p *Provider) Upload(data io.Reader) error {
 //		The name of the provider. Vagrant will use this to determine compatible boxes on the client.
 //		Common providers include virtualbox, vmware_desktop, digitalocean, aws, rackspace, and hyperv.
 func (p *Provider) Download(data io.Writer) error {
-	err := p.api.Download("/"+p.box.Username+"/"+p.box.Name+"/version/"+strconv.Itoa(p.version.Number)+"/provider/"+string(p.Name)+".box", data)
+	err := p.api.Download("/"+p.box.Username+"/"+p.box.Name+"/version/"+p.version.Number+"/provider/"+string(p.Name)+".box", data)
 	if err != nil {
 		return err
 	}
